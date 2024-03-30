@@ -32,9 +32,7 @@ class BadDimensionException : std::exception {
 };
 BadDimensionException::BadDimensionException() : explain("") {}
 BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
-const char* BadDimensionException::what() {
-    return explain.c_str();
-}
+const char* BadDimensionException::what() { return explain.c_str(); }
 template <class T>
 class Matrix2 {
    public:

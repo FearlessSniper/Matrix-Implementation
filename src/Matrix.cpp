@@ -8,10 +8,10 @@
  * @copyright Copyright (c) 2024
  *
  */
+#include "Matrix.hpp"
+
 #include <iomanip>
 #include <sstream>
-
-#include "Matrix.hpp"
 
 namespace MatMulImpl {
 
@@ -19,9 +19,7 @@ constexpr int DP_WIDTH = 6;
 
 BadDimensionException::BadDimensionException() : explain("") {}
 BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
-const char* BadDimensionException::what() {
-    return explain.c_str();
-}
+const char* BadDimensionException::what() { return explain.c_str(); }
 
 /**
  * @brief A lightweight view object providing matrix-like operations. Intended
@@ -33,10 +31,10 @@ template <class T>
 MatrixView<T>::MatrixView(T* mem, int m, int n, int row_size)
     : mem(mem), _dim({m, n}), mem_row_size(row_size) {}
 
-template<class T>
-MatrixView<T> MatMulImpl::MatrixView<T>::build(T * mem, int m, int n, int row_size)
-{
-    return MatrixView<T>(mem, m, n, row_size); // idk why i'm doing this
+template <class T>
+MatrixView<T> MatMulImpl::MatrixView<T>::build(T* mem, int m, int n,
+                                               int row_size) {
+    return MatrixView<T>(mem, m, n, row_size);  // idk why i'm doing this
 }
 
 template <class T>
@@ -131,8 +129,8 @@ Matrix<T>::~Matrix() {
 }
 template <class T>
 MatrixView<T>& Matrix<T>::sub(int i, int j, int n, int m) {
-    views.push_back(MatrixView<T>::build(this->mem + i * this->mem_row_size + j, n, m,
-                                  this->mem_row_size));
+    views.push_back(MatrixView<T>::build(this->mem + i * this->mem_row_size + j,
+                                         n, m, this->mem_row_size));
     return views.back();
 }
 template <class T>

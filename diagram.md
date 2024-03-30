@@ -34,7 +34,6 @@ flowchart TD
 ![Tensor Decompostion Created on ](./assets/Figma_matrix_decomposition.png)
 [image inspired from wiki](https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Strassen_algorithm.svg/1200px-Strassen_algorithm.svg.png)
 
-
 This method uses only 7 multiplications instead of 8. The Strassen algorithm is faster than the naive algorithm for large matrices. The time complexity of the Strassen algorithm is $O(n^{\log_2 7}) \approx O(n^{2.81})$ compared to the naive algorithm which has a time complexity of $O(n^3)$.
 
 It has been proven that a 2x2 matrix multiplication cannot be done in fewer than 7 multiplications. The Strassen algorithm is optimal in this sense.
