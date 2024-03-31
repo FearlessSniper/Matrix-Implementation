@@ -19,7 +19,9 @@ constexpr int DP_WIDTH = 6;
 
 BadDimensionException::BadDimensionException() : explain("") {}
 BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
-const char* BadDimensionException::what() { return explain.c_str(); }
+const char* BadDimensionException::what() const noexcept {
+    return explain.c_str();
+}
 
 /**
  * @brief A lightweight view object providing matrix-like operations. Intended
@@ -29,7 +31,7 @@ const char* BadDimensionException::what() { return explain.c_str(); }
  */
 template <class T>
 MatrixView<T>::MatrixView(T* mem, int m, int n, int row_size)
-    : mem(mem), _dim({m, n}), mem_row_size(row_size) {}
+    : mem(mem), mem_row_size(row_size), _dim({m, n}) {}
 
 template <class T>
 MatrixView<T> MatMulImpl::MatrixView<T>::build(T* mem, int m, int n,

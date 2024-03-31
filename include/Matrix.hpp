@@ -24,7 +24,7 @@ class BadDimensionException : std::exception {
    public:
     BadDimensionException();
     BadDimensionException(const char* s);
-    const char* what();
+    const char* what() const noexcept override;
 
    private:
     std::string explain;
