@@ -1,27 +1,19 @@
-#ifndef MATRIXVIEW_HPP
-#define MATRIXVIEW_HPP
+#pragma once
 
 #include <memory>
 
-#include "Matrix.hpp"
+#include "MatrixBase.hpp"
 
 namespace MatMulImpl {
 template <class T>
-class MatrixView : public Matrix<T> {
-   public:
-    MatrixView(int m, int n) = delete;
-    MatrixView(Matrix<T>&& mat) = delete;
-    MatrixView(std::initializer_list<std::initializer_list<T>> l) = delete;
-
+class MatrixView : public MatrixBase<T> {
    protected:
     MatrixView(std::shared_ptr<T[]> mem, Dim_t dim, Dim_t offset);
     T& item(int i, int j) override;
-    Dim_t offset;
+    std::shared_ptr<T[]> get_mem() const override;
 
    private:
-    std::weak_ptr<T[]> mem_ref;
+    std::weak_ptr<T[]> mem;
 };
 
 }  // namespace MatMulImpl
-
-#endif  // MATRIXVIEW_HPP
