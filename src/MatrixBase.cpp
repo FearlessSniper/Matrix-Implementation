@@ -1,8 +1,11 @@
 #include "MatrixBase.hpp"
 
+#include <iomanip>
+
 #include "MatrixExceptions.hpp"
 
 namespace MatMulImpl {
+constexpr int DP_WIDTH = 6;
 
 template <class T>
 const Dim_t& MatrixBase<T>::dim() const {
@@ -136,7 +139,7 @@ T& MatrixBase<T>::at(int r, int c) const {
  */
 template <class T>
 std::shared_ptr<T[]> MatrixBase<T>::get_mem() const {
-    std::shared_ptr<T[]> mem = this->_mem();
+    std::shared_ptr<T[]> mem = this->_get_mem();
     if (!mem) {
         throw NullPtrException();
     }
@@ -151,8 +154,27 @@ std::shared_ptr<T[]> MatrixBase<T>::get_mem() const {
  */
 
 template <class T>
-std::shared_ptr<T[]> MatrixBase<T>::_mem() const {
+std::shared_ptr<T[]> MatrixBase<T>::_get_mem() const {
     return nullptr;
+}
+
+/**
+ * @brief Output the matrix to the given stream
+ *
+ * @tparam T
+ * @param os output stream
+ * @param m matrix to output
+ * @return std::ostream&
+ */
+template <class T>
+std::ostream& operator<<(std::ostream& os, const MatrixBase<T>& m) {
+    for (int i = 0; i < m.dim().first; i++) {
+        for (int j = 0; j < m.dim().second; j++) {
+            os << std::setw(DP_WIDTH) << m.citem(i, j);
+        }
+        os << "\n";
+    }
+    return os;
 }
 
 }  // namespace MatMulImpl

@@ -28,12 +28,12 @@ class MatrixBase {
 
    protected:
     std::shared_ptr<T[]> get_mem() const;
+    Dim_t _dim;
+    Dim_t _main_dim;  // copy for keeping track of main matrix size in views
+    Dim_t _offset = std::make_pair(0, 0);
 
    private:
-    Dim_t _dim;
-    Dim_t _offset = std::make_pair(0, 0);
-    Dim_t _main_dim;  // copy for keeping track of main matrix size in views
-    std::shared_ptr<T[]> virtual _mem() const;
+    std::shared_ptr<T[]> virtual _get_mem() const;
 };
 
 template <class T>

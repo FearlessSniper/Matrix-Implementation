@@ -40,6 +40,16 @@ class NullPtrException : std::exception {
     std::string explain;
 };
 
+class TooManyInitializersException : std::exception {
+   public:
+    TooManyInitializersException();
+    TooManyInitializersException(const char* s);
+    const char* what() const noexcept override;
+
+   private:
+    std::string explain;
+};
+
 }  // namespace MatMulImpl
 
 #endif  // MATRIXEXCEPTIONS_HPP

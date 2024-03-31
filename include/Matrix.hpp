@@ -23,14 +23,12 @@ class Matrix : MatrixBase<T> {
    public:
     Matrix(int m, int n);
     Matrix(Matrix<T>&& mat) = default;
-    Matrix(std::initializer_list<std::initializer_list<T>> l);
-    ~Matrix();
-
-   protected:
-    std::shared_ptr<T[]> get_mem() const override;
+    Matrix(std::initializer_list<std::initializer_list<T>> l, int cols);
+    Matrix(std::initializer_list<T> l, int cols);
 
    private:
-    std::shared_ptr<T[]> mem;
+    std::shared_ptr<T[]> _mem;
+    std::shared_ptr<T[]> _get_mem() const override;
 };
 
 }  // namespace MatMulImpl

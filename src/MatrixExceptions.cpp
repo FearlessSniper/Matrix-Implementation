@@ -37,4 +37,11 @@ NullPtrException::NullPtrException()
 NullPtrException::NullPtrException(const char* s) : explain(s) {}
 const char* NullPtrException::what() const noexcept { return explain.c_str(); }
 
+TooManyInitializersException::TooManyInitializersException()
+    : explain("Too many initializers: initializer list > column size") {}
+TooManyInitializersException::TooManyInitializersException(const char* s)
+    : explain(s) {}
+const char* TooManyInitializersException::what() const noexcept {
+    return explain.c_str();
+}
 }  // namespace MatMulImpl
