@@ -26,7 +26,7 @@ class Matrix : MatrixBase<T> {
     Matrix(std::initializer_list<std::initializer_list<T>> l);
     ~Matrix();
 
-    protected:
+   protected:
     std::shared_ptr<T[]> get_mem() const override;
 
    private:

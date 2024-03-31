@@ -19,6 +19,27 @@ class BadDimensionException : std::exception {
     std::string explain;
 };
 
+class OutOfBoundsException : std::exception {
+   public:
+    OutOfBoundsException();
+    OutOfBoundsException(const char* s);
+    OutOfBoundsException(int i, int j, Dim_t& dim, Dim_t& main_dim);
+    const char* what() const noexcept override;
+
+   private:
+    std::string explain;
+};
+
+class NullPtrException : std::exception {
+   public:
+    NullPtrException();
+    NullPtrException(const char* s);
+    const char* what() const noexcept override;
+
+   private:
+    std::string explain;
+};
+
 }  // namespace MatMulImpl
 
 #endif  // MATRIXEXCEPTIONS_HPP

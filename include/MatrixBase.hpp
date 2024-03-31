@@ -15,19 +15,25 @@ class MatrixView;
 
 template <class T>
 class MatrixBase {
+    MatrixBase() = delete;
+
    public:
     const Dim_t& dim() const;
-    MatrixView<T>& sub(int i, int j, int n, int m);
-    const MatrixView<T>& csub(int i, int j, int n, int m);
-    Matrix<T> operator+(const MatrixBase<T>& b) const;
-    Matrix<T> virtual operator*(const MatrixBase<T>& b) const;
-    Matrix<T> operator*(const T& b) const;
-    virtual T& at(int i, int j);
+    MatrixView<T> sub(int n, int m, int off_x, int off_y) const;
+    const MatrixView<const T> csub(int n, int m, int off_x, int off_y) const;
+    Matrix<T> operator+(const MatrixBase<const T>& other) const;
+    Matrix<T> operator*(const T& lambda) const;
+    Matrix<T> virtual operator*(const MatrixBase<const T>& other) const;
+    T& at(int r, int c) const;
 
    protected:
+    std::shared_ptr<T[]> get_mem() const;
+
+   private:
     Dim_t _dim;
-    Dim_t offset = std::make_pair(0, 0);
-    std::shared_ptr<T[]> virtual get_mem() const;
+    Dim_t _offset = std::make_pair(0, 0);
+    Dim_t _main_dim;  // copy for keeping track of main matrix size in views
+    std::shared_ptr<T[]> virtual _mem() const;
 };
 
 template <class T>
