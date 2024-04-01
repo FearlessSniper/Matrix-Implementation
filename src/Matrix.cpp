@@ -19,8 +19,12 @@ namespace MatMulImpl {
 
 template <class T>
 Matrix<T>::Matrix(int m, int n) {
+    if (m <= 0 || n <= 0) throw BadDimensionException(std::make_pair(m, n));
     this->_dim = std::make_pair(m, n);
     this->_mem = std::shared_ptr<T[]>(new T[m * n]);
+
+    for (int i = 0; i < m; i++)
+        for (int j = 0; j < n; j++) this->at(i, j) = 0;
 }
 
 /**
@@ -62,6 +66,33 @@ Matrix<T>::Matrix(std::initializer_list<std::initializer_list<T>> l, int cols) {
 template <class T>
 Matrix<T>::Matrix(std::initializer_list<T> l, int cols) {
     this->_dim = std::make_pair((l.size() + cols - 1) / cols, cols);
+    this->_main_dim = this->_dim;
+    this->_mem =
+        std::shared_ptr<T[]>(new T[this->_dim.first * this->_dim.second]);
+
+    for (int i = 0; i < this->_dim.first; i++)
+        for (int j = 0; j < this->_dim.second; j++) {
+            if (i * cols + j < l.size())
+                this->at(i, j) = l.begin()[i * cols + j];
+            else
+                this->at(i, j) = 0;
+        }
+}
+
+/**
+ * @brief Construct a new Matrix< T>:: Matrix object
+ *
+ * @tparam T
+ * @param l 1d initializer list
+ * @param cols number of columns
+ * @param rows number of rows
+ */
+template <class T>
+Matrix<T>::Matrix(std::initializer_list<T> l, int cols, int rows) {
+    int sz = rows * cols;
+    if (l.size() > sz) throw TooManyInitializersException();
+
+    this->_dim = std::make_pair(rows, cols);
     this->_main_dim = this->_dim;
     this->_mem =
         std::shared_ptr<T[]>(new T[this->_dim.first * this->_dim.second]);

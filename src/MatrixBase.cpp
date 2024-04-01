@@ -51,7 +51,7 @@ const MatrixView<const T> MatrixBase<T>::csub(int n, int m, int off_x,
  * @return Matrix<T>
  */
 template <class T>
-Matrix<T> MatrixBase<T>::operator+(const MatrixBase<const T>& other) const {
+Matrix<T> MatrixBase<T>::operator+(const MatrixBase<T>& other) const {
     if (!(this->_dim == other.dim())) {
         throw BadDimensionException(this->_dim, other.dim());
     }
@@ -91,7 +91,7 @@ Matrix<T> MatrixBase<T>::operator*(const T& lambda) const {
  * @return Matrix<T>
  */
 template <class T>
-Matrix<T> MatrixBase<T>::operator*(const MatrixBase<const T>& other) const {
+Matrix<T> MatrixBase<T>::operator*(const MatrixBase<T>& other) const {
     if (this->_dim.second != other.dim().first) {
         throw BadDimensionException(this->_dim, other.dim());
     }
@@ -107,6 +107,30 @@ Matrix<T> MatrixBase<T>::operator*(const MatrixBase<const T>& other) const {
         }
     }
     return res;
+}
+
+/**
+ * @brief Check if two matrices are equal
+ *
+ * @tparam T
+ * @param other Matrix to compare with
+ * @return true if equal
+ * @return false if not equal
+ */
+template <class T>
+bool MatrixBase<T>::operator==(const MatrixBase<T>& other) const {
+    if (this->_dim != other.dim()) {
+        return false;
+    }
+
+    for (int i = 0; i < this->_dim.first; i++) {
+        for (int j = 0; j < this->_dim.second; j++) {
+            if (this->at(i, j) != other.at(i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 /**

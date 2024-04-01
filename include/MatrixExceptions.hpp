@@ -12,6 +12,7 @@ class BadDimensionException : std::exception {
    public:
     BadDimensionException();
     BadDimensionException(const char* s);
+    BadDimensionException(const Dim_t& a);
     BadDimensionException(const Dim_t& a, const Dim_t& b);
     const char* what() const noexcept override;
 

@@ -21,9 +21,10 @@ class MatrixBase {
     const Dim_t& dim() const;
     MatrixView<T> sub(int n, int m, int off_x, int off_y) const;
     const MatrixView<const T> csub(int n, int m, int off_x, int off_y) const;
-    Matrix<T> operator+(const MatrixBase<const T>& other) const;
+    Matrix<T> operator+(const MatrixBase<T>& other) const;
     Matrix<T> operator*(const T& lambda) const;
-    Matrix<T> virtual operator*(const MatrixBase<const T>& other) const;
+    Matrix<T> virtual operator*(const MatrixBase<T>& other) const;
+    bool operator==(const MatrixBase<T>& other) const;
     T& at(int r, int c) const;
 
    protected:

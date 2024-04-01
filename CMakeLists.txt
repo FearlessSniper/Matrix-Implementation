@@ -8,6 +8,10 @@ project(
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+enable_testing()
 
 add_subdirectory(src)
 add_subdirectory(app)
+add_subdirectory(tests)

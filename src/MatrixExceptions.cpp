@@ -5,6 +5,11 @@
 namespace MatMulImpl {
 BadDimensionException::BadDimensionException() : explain("Bad dimension") {}
 BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
+BadDimensionException::BadDimensionException(const Dim_t& a) {
+    std::stringstream ss;
+    ss << "Invalid dimension: (" << a.first << ", " << a.second << ")";
+    explain = ss.str();
+}
 BadDimensionException::BadDimensionException(const Dim_t& a, const Dim_t& b) {
     std::stringstream ss;
     ss << "Bad dimension: (" << a.first << ", " << a.second << ") vs ("
@@ -38,7 +43,7 @@ NullPtrException::NullPtrException(const char* s) : explain(s) {}
 const char* NullPtrException::what() const noexcept { return explain.c_str(); }
 
 TooManyInitializersException::TooManyInitializersException()
-    : explain("Too many initializers: initializer list > column size") {}
+    : explain("Too many initializers: initializer size > matrix size") {}
 TooManyInitializersException::TooManyInitializersException(const char* s)
     : explain(s) {}
 const char* TooManyInitializersException::what() const noexcept {

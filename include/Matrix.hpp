@@ -19,12 +19,14 @@
 namespace MatMulImpl {
 
 template <class T>
-class Matrix : MatrixBase<T> {
+class Matrix : public MatrixBase<T> {
    public:
     Matrix(int m, int n);
     Matrix(Matrix<T>&& mat) = default;
     Matrix(std::initializer_list<std::initializer_list<T>> l, int cols);
     Matrix(std::initializer_list<T> l, int cols);
+    Matrix(std::initializer_list<T> l, int cols, int rows);
+
 
    private:
     std::shared_ptr<T[]> _mem;
