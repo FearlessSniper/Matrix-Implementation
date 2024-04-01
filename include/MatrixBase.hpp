@@ -31,8 +31,8 @@ class MatrixBase {
      * @return MatrixView<T>
      */
     MatrixView<T> sub(int n, int m, int off_x, int off_y) const {
-        return MatrixView<T>(this->get_mem(), n, m, off_x, off_y,
-                             this->_main_dim);
+        return MatrixView<T>(this->get_mem(), n, m, this->_offset.first + off_x,
+                             this->_offset.second + off_y, this->_main_dim);
     }
 
     /**
@@ -46,8 +46,9 @@ class MatrixBase {
      * @return MatrixView<const T>
      */
     const MatrixView<const T> csub(int n, int m, int off_x, int off_y) const {
-        return MatrixView<const T>(this->get_mem(), n, m, off_x, off_y,
-                                   this->_main_dim);
+        return MatrixView<const T>(
+            this->get_mem(), n, m, this->_offset.first + off_x,
+            this->_offset.second + off_y, this->_main_dim);
     }
 
     /**
@@ -186,6 +187,10 @@ class MatrixBase {
             throw OutOfBoundsException(off_x, off_y, this->_dim,
                                        this->_main_dim);
         }
+        if (off_x + n > main_dim.first || off_y + m > main_dim.second) {
+            throw OutOfBoundsException(off_x + n - 1, off_y + m - 1, this->_dim,
+                                       this->_main_dim);
+        }
     }
 
     /**
@@ -222,6 +227,11 @@ class MatrixBase {
      */
     std::shared_ptr<T[]> virtual _get_mem() const { return nullptr; }
 };
+
+template <typename T>
+Matrix<T> operator*(const T& lambda, const MatrixBase<T>& mat) {
+    return mat * lambda;
+}
 
 /**
  * @brief Output the matrix to the given stream

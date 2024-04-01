@@ -23,6 +23,8 @@ class MatrixView : public MatrixBase<T> {
      * @return std::shared_ptr<T[]>
      */
     std::shared_ptr<T[]> virtual _get_mem() const { return _mem.lock(); }
+
+    friend class MatrixBase<T>;
 };
 
 }  // namespace MatMulImpl

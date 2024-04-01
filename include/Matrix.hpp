@@ -15,6 +15,8 @@
 #include <memory>
 
 #include "MatrixBase.hpp"
+#include "MatrixExceptions.hpp"
+#include "MatrixView.hpp"
 
 namespace MatMulImpl {
 

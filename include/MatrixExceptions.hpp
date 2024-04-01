@@ -3,8 +3,8 @@
 
 #include <exception>
 #include <string>
-#include "Matrix_types.hpp"
 
+#include "Matrix_types.hpp"
 
 namespace MatMulImpl {
 

@@ -43,7 +43,7 @@ class Matrix2 {
    public:
     Matrix2() = delete;
     Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {}
-    Matrix2(Matrix2<T>& m) = delete; // no copying for now: not implemented
+    Matrix2(Matrix2<T>& m) = delete;  // no copying for now: not implemented
     ~Matrix2() {
         if (!is_view) {
             delete[] mem;

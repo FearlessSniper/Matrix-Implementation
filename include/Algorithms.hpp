@@ -84,7 +84,7 @@ class Multiplication {
         // https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Non-square_matrices
         int sz_max = std::max({a.m, a.n, b.n});
         if (sz_max == 2) {
-            c = a * b; // problematic
+            c = a * b;  // problematic
         } else if (sz_max == a.m) {
             // Split A horizontally
             int p = a.m / 2;
@@ -94,13 +94,15 @@ class Multiplication {
         } else if (sz_max == b.n) {
             int k = b.n / 2;
             _div_and_conquer(a, b.csub(0, 0, b.m, k), c.sub(0, 0, b.m, k));
-            _div_and_conquer(a, b.csub(0, k, b.m, b.n-k), c.sub(0, k, b.m, b.n-k));
+            _div_and_conquer(a, b.csub(0, k, b.m, b.n - k),
+                             c.sub(0, k, b.m, b.n - k));
         } else {
             int k = a.n / 2;
             Matrixv2<T> c1(a.m, b.n), c2(a.m, b.n);
             _div_and_conquer(a.csub(0, 0, a.m, p), b.csub(0, 0, p, b.n), c1);
-            _div_and_conquer(a.csub(0, p, a.m, a.n-p), b.csub(p, 0, a.n-p, b.n), c2);
-            c = c1 + c2; // problematic
+            _div_and_conquer(a.csub(0, p, a.m, a.n - p),
+                             b.csub(p, 0, a.n - p, b.n), c2);
+            c = c1 + c2;  // problematic
         }
     }
 };
