@@ -22,8 +22,8 @@ const char* BadDimensionException::what() const noexcept {
 
 OutOfBoundsException::OutOfBoundsException() : explain("Out of bounds") {}
 OutOfBoundsException::OutOfBoundsException(const char* s) : explain(s) {}
-OutOfBoundsException::OutOfBoundsException(int i, int j, Dim_t& dim,
-                                           Dim_t& main_dim) {
+OutOfBoundsException::OutOfBoundsException(int i, int j, const Dim_t& dim,
+                                           const Dim_t& main_dim) {
     std::stringstream ss;
     ss << "Out of bounds: " << std::endl
        << "Index: (" << i << ", " << j << ")" << std::endl

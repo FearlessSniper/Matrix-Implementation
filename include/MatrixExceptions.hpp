@@ -3,8 +3,8 @@
 
 #include <exception>
 #include <string>
+#include "Matrix_types.hpp"
 
-#include "Matrix.hpp"
 
 namespace MatMulImpl {
 
@@ -24,7 +24,7 @@ class OutOfBoundsException : std::exception {
    public:
     OutOfBoundsException();
     OutOfBoundsException(const char* s);
-    OutOfBoundsException(int i, int j, Dim_t& dim, Dim_t& main_dim);
+    OutOfBoundsException(int i, int j, const Dim_t& dim, const Dim_t& main_dim);
     const char* what() const noexcept override;
 
    private:

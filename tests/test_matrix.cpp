@@ -150,8 +150,8 @@ TEST(MATRIX, CONSTRUCTOR_1D_LIST) {
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 4; j++) {
-            if (i * 3 + j < 9) {
-                EXPECT_EQ(m2.at(i, j), i * 3 + j + 1);
+            if (i * 4 + j < 9) {
+                EXPECT_EQ(m2.at(i, j), i * 4 + j + 1);
             } else {
                 EXPECT_EQ(m2.at(i, j), 0);
             }
