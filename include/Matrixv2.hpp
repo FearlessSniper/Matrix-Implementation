@@ -1,10 +1,15 @@
 /**
  * @file Matrixv2.hpp
  * @author aydenwong (aydenwongfs@gmail.com)
- * @brief
+ * @brief A matrix implementation.
  * @version 0.1
  * @date 29-03-2024
  *
+ * Note: Implementation is put here because template substitution type
+ * has to be known for the code to be compiled. This means the template code
+ * has to be in the same compilation unit as the caller for it to be compiled,
+ * and to do that we put the source in the header file.
+ * 
  * @copyright Copyright (c) 2024
  *
  */

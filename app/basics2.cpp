@@ -1,3 +1,13 @@
+/**
+ * @file basics2.cpp
+ * @author aydenwong (aydenwongfs@gmail.com)
+ * @brief Simple demo program using the Matrixv2 API
+ * @version 0.1
+ * @date 01-04-2024
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include "Generator.hpp"
 #include "Matrixv2.hpp"
 
