@@ -9,7 +9,7 @@
  * has to be known for the code to be compiled. This means the template code
  * has to be in the same compilation unit as the caller for it to be compiled,
  * and to do that we put the source in the header file.
- * 
+ *
  * @copyright Copyright (c) 2024
  *
  */
@@ -42,8 +42,8 @@ template <class T>
 class Matrix2 {
    public:
     Matrix2() = delete;
-    Matrix2(int m, int n)
-        : mem(new T[m * n]), m(m), n(n), mem_row_sz(n), views{} {}
+    Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {}
+    Matrix2(Matrix2<T>& m) = delete; // no copying for now: not implemented
     ~Matrix2() {
         if (!is_view) {
             delete[] mem;
@@ -85,9 +85,16 @@ class Matrix2 {
         return mem[i * mem_row_sz + j];
     }
     Dim_t dim() const { return Dim_t({m, n}); }
-    const Matrix2<T>& sub(int i, int j, int m, int n) {
-        views.push_back(Matrix2<T>(mem + i * mem_row_sz + j, m, n, mem_row_sz));
-        return views.back();
+    Matrix2<T>& sub(int i, int j, int m, int n) {
+        // We don't have to keep track of the submatrices; we'll trust the
+        // caller (ourselves!) that we know what we are doing. I have no
+        // way of telling whether a submatrix is done being used or not.
+        // Besides, the sub matrix object should go out-of-scope with
+        // the parent matrix, right?
+        return Matrix2<T>(mem + i * mem_row_sz + j, m, n, mem_row_sz);
+    }
+    const Matrix2<T>& csub(int i, int j, int m, int n) {
+        return sub(i, j, m, n);
     }
     Matrix2<T> operator+(const Matrix2<T>& b) const {
         if (!(Dim_t{m, n} == b.dim())) {
@@ -141,13 +148,12 @@ class Matrix2 {
         return c;
     }
     int print_width = 6;
+    const int m, n;  // mxn matrix; it's constant so why not public
 
    private:
     T* mem;
-    const int m, n;        // mxn matrix
     const int mem_row_sz;  // Number of items in a row in the actual matrix
     bool is_view = false;
-    std::vector<Matrix2<T> > views;
     Matrix2(T* mem, int m, int n, int mem_row_sz)
         : mem(mem), m(m), n(n), mem_row_sz(mem_row_sz), is_view(true) {}
 };
