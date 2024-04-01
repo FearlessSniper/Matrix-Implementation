@@ -160,12 +160,42 @@ class MatrixBase {
     }
 
    protected:
-    MatrixBase(int n, int m) {
+    /**
+     * @brief Construct a new Matrix Base object, to be called by views
+     *
+     * @param n row size
+     * @param m column size
+     * @param off_x offset in x direction from top left corner
+     * @param off_y offset in y direction from top left corner
+     * @param main_dim main matrix size
+     */
+
+    MatrixBase(int n, int m, int off_x, int off_y, Dim_t main_dim)
+        : _dim(n, m), _main_dim(main_dim), _offset(off_x, off_y) {
         if (n <= 0 || m <= 0) {
-            throw BadDimensionException(std::make_pair(n, m));
+            throw BadDimensionException(this->_dim);
         }
-        this->_dim = std::make_pair(n, m);
+        if (this->_main_dim.first <= 0 || this->_main_dim.second <= 0) {
+            throw BadDimensionException(this->_main_dim);
+        }
+        if (n > main_dim.first || m > main_dim.second) {
+            throw BadDimensionException(this->_dim, main_dim);
+        }
+        if (off_x < 0 || off_y < 0 || off_x >= main_dim.first ||
+            off_y >= main_dim.second) {
+            throw OutOfBoundsException(off_x, off_y, this->_dim,
+                                       this->_main_dim);
+        }
     }
+
+    /**
+     * @brief Construct a new Matrix Base object, to be called by main matrix
+     *
+     * @param n row size
+     * @param m column size
+     */
+    MatrixBase(int n, int m) : MatrixBase(n, m, 0, 0, std::make_pair(n, m)) {}
+
     /**
      * @brief Perform validation and return the memory pointer
      *
@@ -181,7 +211,7 @@ class MatrixBase {
     }
     Dim_t _dim;
     Dim_t _main_dim;  // copy for keeping track of main matrix size in views
-    Dim_t _offset = std::make_pair(0, 0);
+    Dim_t _offset;
 
    private:
     /**

@@ -22,7 +22,6 @@ template <class T>
 class Matrix : public MatrixBase<T> {
    public:
     Matrix(int m, int n) : MatrixBase<T>(m, n) {
-        this->_main_dim = this->_dim;
         this->_mem = std::shared_ptr<T[]>(new T[m * n]);
 
         for (int i = 0; i < m; i++)
@@ -39,7 +38,6 @@ class Matrix : public MatrixBase<T> {
      */
     Matrix(std::initializer_list<std::initializer_list<T>> l, int cols)
         : MatrixBase<T>(l.size(), cols) {
-        this->_main_dim = this->_dim;
         this->_mem =
             std::shared_ptr<T[]>(new T[this->_dim.first * this->_dim.second]);
 
@@ -66,7 +64,6 @@ class Matrix : public MatrixBase<T> {
      */
     Matrix(std::initializer_list<T> l, int cols)
         : MatrixBase<T>((l.size() + cols - 1) / cols, cols) {
-        this->_main_dim = this->_dim;
         this->_mem =
             std::shared_ptr<T[]>(new T[this->_dim.first * this->_dim.second]);
 
@@ -92,7 +89,6 @@ class Matrix : public MatrixBase<T> {
         int sz = rows * cols;
         if (l.size() > sz) throw TooManyInitializersException();
 
-        this->_main_dim = this->_dim;
         this->_mem =
             std::shared_ptr<T[]>(new T[this->_dim.first * this->_dim.second]);
 
