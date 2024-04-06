@@ -50,6 +50,10 @@ SqSlices<T> square_slice(Matrix2<T> &m) {
 class Multiplication {
    public:
     template <class T>
+    static Matrix2<T> naive(const Matrix2<T> &a, const Matrix2<T> &b) {
+        return a * b; // Only here because we want a similar function signature
+    }
+    template <class T>
     static Matrix2<T> div_and_conquer(const Matrix2<T> &a,
                                       const Matrix2<T> &b) {
         Matrix2<T> c(a.m, b.n);
