@@ -43,7 +43,10 @@ class Matrix2 {
    public:
     Matrix2() = delete;
     Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {}
-    Matrix2(Matrix2<T>& m) = delete; // no copying for now: not implemented
+    Matrix2(const Matrix2<T>& m) =
+        delete;  // no copying for now: not implemented
+    Matrix2(Matrix2<T>&& m) = default;
+    Matrix2<T>& operator=(Matrix2<T>&& m) = default;
     ~Matrix2() {
         if (!is_view) {
             delete[] mem;
@@ -85,16 +88,18 @@ class Matrix2 {
         return mem[i * mem_row_sz + j];
     }
     Dim_t dim() const { return Dim_t({m, n}); }
-    Matrix2<T>& sub(int i, int j, int m, int n) {
+    Matrix2<T> sub(int i, int j, int m, int n) {
         // We don't have to keep track of the submatrices; we'll trust the
         // caller (ourselves!) that we know what we are doing. I have no
         // way of telling whether a submatrix is done being used or not.
         // Besides, the sub matrix object should go out-of-scope with
         // the parent matrix, right?
-        return Matrix2<T>(mem + i * mem_row_sz + j, m, n, mem_row_sz);
+        return Matrix2<T>(
+            mem + i * mem_row_sz + j, m, n,
+            mem_row_sz);  // bad idea; refactor later (if i feel like it)
     }
-    const Matrix2<T>& csub(int i, int j, int m, int n) {
-        return sub(i, j, m, n);
+    const Matrix2<T> csub(int i, int j, int m, int n) const {
+        return Matrix2<T>(mem + i * mem_row_sz + j, m, n, mem_row_sz);
     }
     Matrix2<T> operator+(const Matrix2<T>& b) const {
         if (!(Dim_t{m, n} == b.dim())) {
@@ -146,6 +151,51 @@ class Matrix2 {
             }
         }
         return c;
+    }
+    bool operator==(const Matrix2<T>& b) const {
+        if (this->dim() != b.dim()) {
+            throw BadDimensionException("In == operator: Dimension mismatch.");
+        }
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (this->citem(i, j) != b.citem(i, j)) return false;
+            }
+        }
+        return true;
+    }
+    void sum_from(const Matrix2<T>& a, const Matrix2<T>& b) {
+        if (a.dim() != b.dim())
+            throw BadDimensionException(
+                "Size of matrix A and B does not match.");
+        if (this->dim() != a.dim())
+            throw BadDimensionException(
+                "Target matrix is not the size of A and B.");
+        for (int i = 0; i < a.m; i++) {
+            for (int j = 0; j < a.n; j++) {
+                item(i, j) = a.citem(i, j) + b.citem(i, j);
+            }
+        }
+    }
+    /**
+     * @brief Computes the product of matrix a and b with the standard method
+     * and stores it in itself
+     * @param a Left multiplication matrix
+     * @param b Right multiplication matrix
+     */
+    void product_from(const Matrix2<T>& a, const Matrix2<T>& b) {
+        if (m != a.m || n != b.n) {
+            throw BadDimensionException(
+                "C is not the size of AB.");  // Insert more descriptive message
+                                              // here
+        }
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                item(i, j) = a.citem(i, 0) * b.citem(0, j);
+                for (int k = 1; k < n; k++) {
+                    item(i, j) += b.citem(i, k) * b.citem(k, j);  // Traditional
+                }
+            }
+        }
     }
     int print_width = 6;
     const int m, n;  // mxn matrix; it's constant so why not public
