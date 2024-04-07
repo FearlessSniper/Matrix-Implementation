@@ -23,6 +23,7 @@
 #include <functional>
 #include <iostream>
 #include <string>
+#include <numeric>
 
 #include "Algorithms.hpp"
 #include "Generator.hpp"
@@ -39,7 +40,7 @@ const char *help_msg =
     "Default: alg-runtimes<current datetime>.csv\n"
     "The output path of the csvFile\n";
 
-constexpr long init_batch_size = 0x200000000;  // Put a number that is 2^n here
+constexpr long init_batch_size = 0x1000000;  // Put a number that is 2^n here
 
 int main(int argc, char const *argv[]) {
     std::string csvOut("");
@@ -64,10 +65,6 @@ int main(int argc, char const *argv[]) {
     std::fstream out_file;
     out_file.open(csvOut, std::ios::out);
     out_file << "Alg_name,Entry_type,RowA,ColA,RowB,ColB,Tests\n";
-    // auto f = Mtp::naive;
-    // for (std::function < Matrix2<int> (const Matrix2<int>&, const
-    // Matrix2<int>&) > &&f: {Mtp::naive, Mtp::div_and_conquer_sq2,
-    // Mtp::strassen}; std::function < Matrix2<int>(const)
     const char *alg_names[] = {"naive", "div_and_conquer", "strassen"};
     std::cout << "Running algorithms: ";
     for (auto &&s : alg_names) {
@@ -79,17 +76,16 @@ int main(int argc, char const *argv[]) {
               << " ticks in 1 second" << std::endl;
     int i_alg = 0;
     int i_batch = 1;
-    for (auto &&f : {&Mtp::naive<int>, &Mtp::div_and_conquer_sq2<int>,
-                     &Mtp::strassen<int>}) {
+    for (auto &&f : std::initializer_list<std::function< Matrix2<double>(const Matrix2<double>&, const Matrix2<double>&)> >{&Mtp::naive<double>, &Mtp::div_and_conquer_sq2<double>, &Mtp::strassen<double>}) {
         int matrix_size = 2;
-        for (long batch_size = init_batch_size; batch_size > 0; batch_size /= 8, i_batch++, matrix_size*=2) {
+        for (long batch_size = init_batch_size; batch_size > 0; batch_size /= 4, i_batch++, matrix_size*=2) {
             std::cout << "Batch #" << i_batch << ": Multiplying " << matrix_size << "x" << matrix_size << " matrices with " << alg_names[i_alg] << ", batch size " << batch_size << std::endl;
             std::vector<tick_type> unit_times(batch_size);
             for (long i = 0; i < batch_size; i++) {
                 // prepare matrices
-                auto m1 = MatrixGenerator<int>::random_fill(matrix_size,
+                auto m1 = MatrixGenerator<double>::random_fill(matrix_size,
                                                             matrix_size),
-                     m2 = MatrixGenerator<int>::random_fill(matrix_size,
+                     m2 = MatrixGenerator<double>::random_fill(matrix_size,
                                                             matrix_size);
                 auto t_start = std::chrono::high_resolution_clock::now();
                 f(m1, m2);
@@ -97,7 +93,7 @@ int main(int argc, char const *argv[]) {
                 auto t_delta = t_end - t_start;
                 unit_times.push_back(t_delta.count());
             }
-            std::cout << "Batch #" << i_batch << " done, average ticks " << std::reduce(unit_times.begin(), unit_times.end()) / unit_times.size() << '\n';
+            std::cout << "Batch #" << i_batch << " done, average ticks " << std::accumulate(unit_times.begin(), unit_times.end(), 0) / unit_times.size() << '\n';
             out_file << alg_names[i_alg] << ',' << "int" << ',' << matrix_size << ',' << matrix_size << ',' << matrix_size << ',' << matrix_size << ',' << batch_size << ',';
             for (auto &&t : unit_times)
             {
