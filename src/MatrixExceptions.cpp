@@ -49,4 +49,11 @@ TooManyInitializersException::TooManyInitializersException(const char* s)
 const char* TooManyInitializersException::what() const noexcept {
     return explain.c_str();
 }
+
+NotImplementedException::NotImplementedException()
+    : explain("Not implemented") {}
+NotImplementedException::NotImplementedException(const char* s) : explain(s) {}
+const char* NotImplementedException::what() const noexcept {
+    return explain.c_str();
+}
 }  // namespace MatMulImpl

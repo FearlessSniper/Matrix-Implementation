@@ -51,6 +51,57 @@ class MatrixBase {
             this->_offset.second + off_y, this->_main_dim);
     }
 
+    template <typename U>
+    static Matrix<U> flatten(Matrix<Matrix<U>>& mat) {
+        int rows = 0, cols = 0;
+        for (int i = 0; i < mat.dim().first; i++) {
+            rows += mat.at(i, 0).dim().first;
+            cols += mat.at(0, i).dim().second;
+        }
+        Matrix<U> res(rows, cols);
+
+        int curr_r = 0, curr_c = 0;
+        for (int i = 0; i < mat.dim().first; i++) {
+            curr_c = 0;
+            for (int j = 0; j < mat.dim().second; j++) {
+                auto view = res.sub(mat.at(i, j).dim().first,
+                                    mat.at(i, j).dim().second, curr_r, curr_c);
+                view.copy_from(mat.at(i, j));
+                curr_c += mat.at(i, j).dim().second;
+            }
+            curr_r += mat.at(i, 0).dim().first;
+        }
+        return res;
+    }
+
+    /**
+     * @brief Copy values from another matrix, you can use Views to copy parts
+     * of the matrix to parts of another matrix
+     *
+     * @tparam T
+     * @param other Matrix to copy from
+     */
+    void copy_from(const MatrixBase<T>& other) {
+        if (this->_dim != other.dim()) {
+            throw BadDimensionException(this->_dim, other.dim());
+        }
+
+        for (int i = 0; i < this->_dim.first; i++) {
+            for (int j = 0; j < this->_dim.second; j++) {
+                this->at(i, j) = other.at(i, j);
+            }
+        }
+    }
+
+    /**
+     * @brief Copy values from another matrix, you can use Views to copy parts
+     * of the matrix to parts of another matrix
+     *
+     * @tparam T
+     * @param other Matrix to copy from
+     */
+    void operator=(const MatrixBase<T>& other) { this->copy_from(other); }
+
     /**
      * @brief Add two matrices
      *
@@ -118,6 +169,24 @@ class MatrixBase {
     }
 
     /**
+     * @brief Add another matrix to this matrix
+     *
+     * @tparam T
+     * @param other Matrix to add
+     */
+    void operator+=(const MatrixBase<T>& other) {
+        if (!(this->_dim == other.dim())) {
+            throw BadDimensionException(this->_dim, other.dim());
+        }
+
+        for (int i = 0; i < this->_dim.first; i++) {
+            for (int j = 0; j < this->_dim.second; j++) {
+                this->at(i, j) += other.at(i, j);
+            }
+        }
+    }
+
+    /**
      * @brief Check if two matrices are equal
      *
      * @tparam T
@@ -147,18 +216,8 @@ class MatrixBase {
      * @param j column index
      * @return T&
      */
-    T& at(int r, int c) const {
-        std::shared_ptr<T[]> mem = this->get_mem();
 
-        int row = _offset.first + r, col = _offset.second + c;
-        if (row < 0 || col < 0 || row >= this->_main_dim.first ||
-            col >= this->_main_dim.second || r >= this->_dim.first ||
-            c >= this->_dim.second) {
-            throw OutOfBoundsException(r, c, this->_dim, this->_main_dim);
-        }
-
-        return mem[row * this->_main_dim.second + col];
-    }
+    T& at(int r, int c) const { return *(this->_at(r, c)); }
 
    protected:
     /**
@@ -194,7 +253,8 @@ class MatrixBase {
     }
 
     /**
-     * @brief Construct a new Matrix Base object, to be called by main matrix
+     * @brief Construct a new Matrix Base object, to be called by main
+     * matrix
      *
      * @param n row size
      * @param m column size
@@ -205,14 +265,25 @@ class MatrixBase {
      * @brief Perform validation and return the memory pointer
      *
      * @tparam T
-     * @return std::shared_ptr<T[]>
+     * @return std::shared_ptr<std::shared_ptr<T>[]>
      */
-    std::shared_ptr<T[]> get_mem() const {
-        std::shared_ptr<T[]> mem = this->_get_mem();
+    std::shared_ptr<std::shared_ptr<T>[]> get_mem() const {
+        std::shared_ptr<std::shared_ptr<T>[]> mem = this->_get_mem();
         if (!mem) {
             throw NullPtrException();
         }
         return mem;
+    }
+    std::shared_ptr<T>& _at(int r, int c) const {
+        std::shared_ptr<std::shared_ptr<T>[]> mem = this->get_mem();
+
+        int row = _offset.first + r, col = _offset.second + c;
+        if (row < 0 || col < 0 || row >= this->_main_dim.first ||
+            col >= this->_main_dim.second || r >= this->_dim.first ||
+            c >= this->_dim.second) {
+            throw OutOfBoundsException(r, c, this->_dim, this->_main_dim);
+        }
+        return mem[row * this->_main_dim.second + col];
     }
     Dim_t _dim;
     Dim_t _main_dim;  // copy for keeping track of main matrix size in views
@@ -223,9 +294,11 @@ class MatrixBase {
      * @brief Get the memory pointer
      *
      * @tparam T
-     * @return std::shared_ptr<T[]>
+     * @return std::shared_ptr<std::shared_ptr<T>[]>
      */
-    std::shared_ptr<T[]> virtual _get_mem() const { return nullptr; }
+    std::shared_ptr<std::shared_ptr<T>[]> virtual _get_mem() const {
+        return nullptr;
+    }
 };
 
 template <typename T>
