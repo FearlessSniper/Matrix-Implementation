@@ -19,14 +19,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A(["$$\text{Strassen}\left(A,B\right)$$"]) --> B("$$A\times B = \begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} \\ b_{21} & b_{22} \end{bmatrix}$$")
-    B --> C["$$P_1 = a_{11}\left(b_{12} - b_{22}\right) \\ P_2 = \left(a_{11} + a_{12}\right)b_{22} \\ P_3 = \left(a_{21} + a_{22}\right)b_{11} \\ P_4 = a_{22}\left(b_{21} - b_{11}\right) \\ P_5 = \left(a_{11} + a_{22}\right)\left(b_{11} + b_{22}\right) \\ P_6 = \left(a_{12} - a_{22}\right)\left(b_{21} + b_{22}\right) \\ P_7 = \left(a_{11} - a_{21}\right)\left(b_{11} + b_{12}\right)$$"]
+    A(["$$\text{Strassen}\left(A,B\right)$$"]) --> BB{"Is the Matrices 1 x 1?"}
+    BB -- Yes --> CC["$$C = \left[a_{11} \times b_{11}\right]$$"]
+    CC --> DD([Return])
+    BB -- No --> B{{"Partition the Matrix"}}
+    B --> C["$$A \times B = \left[ \begin{array}{c|c} A_{11} & A_{12}  \\ \hline A_{21} & A_{22} \end{array} \right] \times \left[ \begin{array}{c|c} B_{11} & B_{12}  \\ \hline B_{21} & B_{22} \end{array} \right]$$"]
+    C --> D["$$P_1 = A_{11}\left(B_{12} - B_{22}\right) \\ P_2 = \left(A_{11} + A_{12}\right)B_{22} \\ P_3 = \left(A_{21} + A_{22}\right)B_{11} \\ P_4 = A_{22}\left(B_{21} - B_{11}\right) \\ P_5 = \left(A_{11} + A_{22}\right)\left(B_{11} + B_{22}\right) \\ P_6 = \left(A_{12} - A_{22}\right)\left(B_{21} + B_{22}\right) \\ P_7 = \left(A_{11} - A_{21}\right)\left(B_{11} + B_{12}\right)$$"]
 
-    C --> D["$$c_{11} = P_5 + P_4 - P_2 + P_6 \\ c_{12} = P_1 + P_2 \\ c_{21} = P_3 + P_4 \\ c_{22} = P_5 + P_1 - P_3 - P_7$$"]
+    D --> EE[["$$\text{Strassen}\left(A,B\right)$$"]]
 
-    D --> E["$$= \begin{bmatrix} c_{11} & c_{12} \\ c_{21} & c_{22} \end{bmatrix}$$"]
+    EE --> E["$$C_{11} = P_5 + P_4 - P_2 + P_6 \\ C_{12} = P_1 + P_2 \\ C_{21} = P_3 + P_4 \\ C_{22} = P_5 + P_1 - P_3 - P_7$$"]
 
-    E --> F([Return])
+    E --> F["$$= \begin{bmatrix} C_{11} & C_{12} \\ C_{21} & C_{22} \end{bmatrix} = C$$"]
+
+    F --> G([Return])
 ```
 
 ### Tensor decomposition of Strassen algorithm
@@ -54,3 +60,16 @@ flowchart TD
     C -- Yes --> I[["$$\text{Strassen}\left(A,B\right)$$"]]
     I --> J(["Return"])
 ```
+
+## Winograd's Algorithm (1968)
+
+```mermaid
+flowchart TD
+    A(["$$\text{Winograd}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1n} \\ b_{21} & b_{22} & \cdots & b_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{mn} \end{bmatrix}$$"]
+    B --> CC{{"Preproccessing"}}
+    CC --> C["$$D_i = \sum_{k=1}^{n/2}a_{i,2k-1} \cdot a_{i,2k} \\ E_j =\sum_{k=1}^{n/2}b_{2k-1,j} \cdot a_{2k,j}$$"]
+    C --> DC["$$C_{i,j} = \sum^{n/2}_{k=1}(a_{i,2k-1}+b_{2k,j})(a_{i,2k}+b_{2k-1,j})-D_i-E_j$$"]
+    DC --> D(["Return"])
+```
+
+This algorithm is asymptotically the same as the naive algorithm, but it has a lower constant factor. It trades off the number of multiplications for the number of additions. The time complexity of the Winograd algorithm is $O(n^3)$.
