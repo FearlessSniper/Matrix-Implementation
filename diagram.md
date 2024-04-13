@@ -64,12 +64,15 @@ flowchart TD
 ## Winograd's Algorithm (1968)
 
 ```mermaid
-flowchart TD
+flowchart LR
     A(["$$\text{Winograd}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1n} \\ b_{21} & b_{22} & \cdots & b_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{mn} \end{bmatrix}$$"]
     B --> CC{{"Preproccessing"}}
     CC --> C["$$D_i = \sum_{k=1}^{n/2}a_{i,2k-1} \cdot a_{i,2k} \\ E_j =\sum_{k=1}^{n/2}b_{2k-1,j} \cdot a_{2k,j}$$"]
-    C --> DC["$$C_{i,j} = \sum^{n/2}_{k=1}(a_{i,2k-1}+b_{2k,j})(a_{i,2k}+b_{2k-1,j})-D_i-E_j$$"]
-    DC --> D(["Return"])
+    C --> DD{"Is n even?"}
+    DD -- Yes --> D["$$C_{i,j} = \sum^{n/2}_{k=1}(a_{i,2k-1}+b_{2k,j})(a_{i,2k}+b_{2k-1,j})-D_i-E_j$$"]
+    DD -- No --> F["$$C_{i,j} = \sum^{n/2}_{k=1}(a_{i,2k-1}+b_{2k,j})(a_{i,2k}+b_{2k-1,j})-D_i-E_j+\boldsymbol{ a_{i,n}b_{n,j} }$$"]
+    D --> E(["Return"])
+    F --> E
 ```
 
 This algorithm is asymptotically the same as the naive algorithm, but it has a lower constant factor. It trades off the number of multiplications for the number of additions. The time complexity of the Winograd algorithm is $O(n^3)$.

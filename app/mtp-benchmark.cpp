@@ -39,7 +39,7 @@ const char *help_msg =
     "Default: alg-runtimes<current datetime>.csv\n"
     "The output path of the csvFile\n";
 
-constexpr long init_batch_size = 0x200000000;  // Put a number that is 2^n here
+constexpr long long init_batch_size = 0x200000000;  // Put a number that is 2^n here
 
 int main(int argc, char const *argv[]) {
     std::string csvOut("");
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[]) {
     for (auto &&f : {&Mtp::naive<int>, &Mtp::div_and_conquer_sq2<int>,
                      &Mtp::strassen<int>}) {
         int matrix_size = 2;
-        for (long batch_size = init_batch_size; batch_size > 0; batch_size /= 8, i_batch++, matrix_size*=2) {
+        for (long long batch_size = init_batch_size; batch_size > 0; batch_size /= 8, i_batch++, matrix_size*=2) {
             std::cout << "Batch #" << i_batch << ": Multiplying " << matrix_size << "x" << matrix_size << " matrices with " << alg_names[i_alg] << ", batch size " << batch_size << std::endl;
             std::vector<tick_type> unit_times(batch_size);
             for (long i = 0; i < batch_size; i++) {
