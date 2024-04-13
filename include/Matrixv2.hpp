@@ -30,14 +30,14 @@ class BadDimensionException : std::exception {
    public:
     BadDimensionException();
     BadDimensionException(const char* s);
-    const char* what();
+    const char* what() const noexcept override;
 
    private:
     std::string explain;
 };
-BadDimensionException::BadDimensionException() : explain("") {}
-BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
-const char* BadDimensionException::what() { return explain.c_str(); }
+inline BadDimensionException::BadDimensionException() : explain("") {}
+inline BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
+inline const char* BadDimensionException::what() const noexcept { return explain.c_str(); }
 template <class T>
 class Matrix2 {
    public:
@@ -88,18 +88,18 @@ class Matrix2 {
         return mem[i * mem_row_sz + j];
     }
     Dim_t dim() const { return Dim_t({m, n}); }
-    Matrix2<T> sub(int i, int j, int m, int n) {
+    Matrix2<T> sub(int i, int j, int M, int N) {
         // We don't have to keep track of the submatrices; we'll trust the
         // caller (ourselves!) that we know what we are doing. I have no
         // way of telling whether a submatrix is done being used or not.
         // Besides, the sub matrix object should go out-of-scope with
         // the parent matrix, right?
         return Matrix2<T>(
-            mem + i * mem_row_sz + j, m, n,
+            mem + i * mem_row_sz + j, M, N,
             mem_row_sz);  // bad idea; refactor later (if i feel like it)
     }
-    const Matrix2<T> csub(int i, int j, int m, int n) const {
-        return Matrix2<T>(mem + i * mem_row_sz + j, m, n, mem_row_sz);
+    const Matrix2<T> csub(int i, int j, int M, int N) const {
+        return Matrix2<T>(mem + i * mem_row_sz + j, M, N, mem_row_sz);
     }
     Matrix2<T> operator+(const Matrix2<T>& b) const {
         if (!(Dim_t{m, n} == b.dim())) {
