@@ -81,12 +81,10 @@ int main(int argc, char const *argv[]) {
     out_file.open(csvOut, std::ios::out);
     out_file << "Alg_name,Entry_type,RowA,ColA,RowB,ColB,Tests\n";
     std::cout << "Running algorithms: ";
-    int i = 0;
-    for (auto &&s : alg_names) {
+    for (int i = 0; i < 3; i++) {
         if (used_algs[i]) {
-            std::cout << s << ' ';
+            std::cout << alg_names[i] << ' ';
         }
-        i++;
     }
     std::cout << '\n';
     std::cout << "Timing using std::chrono::high_resolution::clock\nResolution:"

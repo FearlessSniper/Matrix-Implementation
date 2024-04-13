@@ -42,10 +42,16 @@ template <class T>
 class Matrix2 {
    public:
     Matrix2() = delete;
-    Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {}
+    Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {
+        std::fill(mem, mem + m * n, 0);
+    }
     Matrix2(const Matrix2<T>& m) =
         delete;  // no copying for now: not implemented
-    Matrix2(Matrix2<T>&& m) = default;
+    Matrix2(Matrix2<T>&& m): mem(m.mem), m(m.m), n(m.n), mem_row_sz(m.mem_row_sz), is_view(m.is_view) {
+        if(this != &m) {
+            m.mem = nullptr;
+        }
+    };
     Matrix2<T>& operator=(Matrix2<T>&& m) = default;
     ~Matrix2() {
         if (!is_view) {
