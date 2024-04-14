@@ -36,8 +36,11 @@ class BadDimensionException : std::exception {
     std::string explain;
 };
 inline BadDimensionException::BadDimensionException() : explain("") {}
-inline BadDimensionException::BadDimensionException(const char* s) : explain(s) {}
-inline const char* BadDimensionException::what() const noexcept { return explain.c_str(); }
+inline BadDimensionException::BadDimensionException(const char* s)
+    : explain(s) {}
+inline const char* BadDimensionException::what() const noexcept {
+    return explain.c_str();
+}
 template <class T>
 class Matrix2 {
    public:
@@ -47,8 +50,13 @@ class Matrix2 {
     }
     Matrix2(const Matrix2<T>& m) =
         delete;  // no copying for now: not implemented
-    Matrix2(Matrix2<T>&& m): mem(m.mem), m(m.m), n(m.n), mem_row_sz(m.mem_row_sz), is_view(m.is_view) {
-        if(this != &m) {
+    Matrix2(Matrix2<T>&& m)
+        : mem(m.mem),
+          m(m.m),
+          n(m.n),
+          mem_row_sz(m.mem_row_sz),
+          is_view(m.is_view) {
+        if (this != &m) {
             m.mem = nullptr;
         }
     };

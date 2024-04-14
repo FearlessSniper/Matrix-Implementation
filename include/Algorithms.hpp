@@ -24,7 +24,7 @@ namespace MatMulImpl {
  * @return true
  * @return false
  */
-bool isP2(int n) { return (n & (n - 1)) == 0; }
+inline bool isP2(int n) { return (n & (n - 1)) == 0; }
 
 template <class T>
 using SqSlices = std::tuple<Matrix2<T>, Matrix2<T>, Matrix2<T>, Matrix2<T>>;
@@ -51,7 +51,7 @@ class Multiplication {
    public:
     template <class T>
     static Matrix2<T> naive(const Matrix2<T> &a, const Matrix2<T> &b) {
-        return a * b; // Only here because we want a similar function signature
+        return a * b;  // Only here because we want a similar function signature
     }
     template <class T>
     static Matrix2<T> div_and_conquer(const Matrix2<T> &a,
