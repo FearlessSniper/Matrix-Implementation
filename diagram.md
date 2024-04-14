@@ -26,7 +26,7 @@ flowchart TD
     B --> C["$$A \times B = \left[ \begin{array}{c|c} A_{11} & A_{12}  \\ \hline A_{21} & A_{22} \end{array} \right] \times \left[ \begin{array}{c|c} B_{11} & B_{12}  \\ \hline B_{21} & B_{22} \end{array} \right]$$"]
     C --> D["$$P_1 = A_{11}\left(B_{12} - B_{22}\right) \\ P_2 = \left(A_{11} + A_{12}\right)B_{22} \\ P_3 = \left(A_{21} + A_{22}\right)B_{11} \\ P_4 = A_{22}\left(B_{21} - B_{11}\right) \\ P_5 = \left(A_{11} + A_{22}\right)\left(B_{11} + B_{22}\right) \\ P_6 = \left(A_{12} - A_{22}\right)\left(B_{21} + B_{22}\right) \\ P_7 = \left(A_{11} - A_{21}\right)\left(B_{11} + B_{12}\right)$$"]
 
-    D --> EE[["$$\text{Strassen}\left(A,B\right)$$"]]
+    D --> EE[["$$\text{For each, use Strassen}\left(A_{i,j},B_{k,l}\right)$$"]]
 
     EE --> E["$$C_{11} = P_5 + P_4 - P_2 + P_6 \\ C_{12} = P_1 + P_2 \\ C_{21} = P_3 + P_4 \\ C_{22} = P_5 + P_1 - P_3 - P_7$$"]
 
@@ -50,7 +50,7 @@ For now, we assume that the matrix is a square matrix and the size of the matrix
 
 ```mermaid
 flowchart TD
-    A(["$$\text{MUL}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1n} \\ b_{21} & b_{22} & \cdots & b_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{mn} \end{bmatrix}$$"]
+    A(["$$\text{MUL}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{n1} & a_{n2} & \cdots & a_{nn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1n} \\ b_{21} & b_{22} & \cdots & b_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ b_{n1} & b_{n2} & \cdots & b_{nn} \end{bmatrix}$$"]
     B --> C{"Is the Matrix 2 x 2?"}
     C -- No --> D{{"Partition the Matrix"}}
     D --> E["$$A \times B = \left[ \begin{array}{c|c} A_{11} & A_{12}  \\ \hline A_{21} & A_{22} \end{array} \right] \times \left[ \begin{array}{c|c} B_{11} & B_{12}  \\ \hline B_{21} & B_{22} \end{array} \right]$$"]
@@ -65,7 +65,7 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A(["$$\text{Winograd}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1n} \\ b_{21} & b_{22} & \cdots & b_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ b_{m1} & b_{m2} & \cdots & b_{mn} \end{bmatrix}$$"]
+    A(["$$\text{Winograd}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1p} \\ b_{21} & b_{22} & \cdots & b_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ b_{n1} & b_{n2} & \cdots & b_{np} \end{bmatrix}$$"]
     B --> CC{{"Preproccessing"}}
     CC --> C["$$D_i = \sum_{k=1}^{n/2}a_{i,2k-1} \cdot a_{i,2k} \\ E_j =\sum_{k=1}^{n/2}b_{2k-1,j} \cdot a_{2k,j}$$"]
     C --> DD{"Is n even?"}
@@ -76,3 +76,45 @@ flowchart LR
 ```
 
 This algorithm is asymptotically the same as the naive algorithm, but it has a lower constant factor. It trades off the number of multiplications for the number of additions. The time complexity of the Winograd algorithm is $O(n^3)$.
+
+## Divide and Conquer
+
+```mermaid
+flowchart TD
+    A(["$$\text{DNC}\left(A,B\right)$$"]) --> B["$$A\times B = \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \end{bmatrix} \times \begin{bmatrix} b_{11} & b_{12} & \cdots & b_{1p} \\ b_{21} & b_{22} & \cdots & b_{2p} \\ \vdots & \vdots & \ddots & \vdots \\ b_{n1} & b_{n2} & \cdots & b_{np} \end{bmatrix}$$"]
+
+    B --> CC{"$$\text{is }A, B \text{ small?}$$"}
+
+    CC -- No --> C{"$$\text{is }max(m,n,p)=m$$?"}
+
+    C -- Yes --> D{{"$$\text{Split }A\text{ horizontally}$$"}}
+
+    D --> E["$$C = A \times B = \left[ \begin{array}{c} A_{1}  \\ \hline A_{2} \end{array} \right] \times B = \left[ \begin{array}{c} A_{1}B  \\ A_{2}B \end{array} \right]$$"]
+
+    E --> F["$$= \left[ \begin{array}{c} \text{DNC}\left(A_{1},B\right)  \\ \text{DNC}\left(A_{2},B\right) \end{array} \right]$$"]
+
+    F --> L
+
+    C -- No --> H{"$$\text{is }max(m,n,p)=p$$?"}
+
+    H -- Yes --> I{{"$$\text{Split }B\text{ vertically}$$"}}
+
+    I --> J["$$C = A \times B = A \times \left[ \begin{array}{c|c} B_{1}  & B_{2} \end{array} \right] = \left[ \begin{array}{cc} A B_{1} & A B_{2} \end{array} \right]$$"]
+
+    J --> K["$$= \left[ \begin{array}{cc} \text{DNC}\left(A,B_{1}\right) & \text{DNC}\left(A,B_{2}\right) \end{array} \right]$$"]
+
+    K --> L(["Return"])
+
+    H -- No --> M{{"$$\text{Split }A\text{ vertically and }B\text{ horizontally}$$"}}
+
+    M --> N["$$C = A \times B = \left[ \begin{array}{c|c} A_{1} & A_{2} \end{array} \right] \times \left[ \begin{array}{c} B_{1}  \\ \hline B_{2} \end{array} \right] = \begin{array}{c} A_{1}B_{1} + A_{2}B_{2} \end{array} $$"]
+
+    N --> O["$$= \text{DNC}\left(A_{1},B_{1}\right) + \text{DNC}\left(A_{2},B_{2}\right)$$"]
+
+    O --> L
+
+    CC -- Yes --> Q{{"Simple unrolled loop for multiplication"}}
+
+    Q --> R(["Return"])
+
+```
