@@ -74,10 +74,10 @@ class Multiplication {
                                           const Matrix2<T> &b) {
         // Reference: Introduction to algorithms 3rd-edition, Ch 4.2, p.77,
         // SQUARE-MATRIX-MULTIPLY-RECURSIVE
-        if (a.dim() != b.dim() && !isP2(a.n) && !isP2(a.m))
-            throw BadDimensionException(
-                "div_and_conquer_sq2: Matrix is either not square or size is "
-                "not a power of 2.");
+        // if (a.dim() != b.dim() && !isP2(a.n) && !isP2(a.m))
+        //     throw BadDimensionException(
+        //         "div_and_conquer_sq2: Matrix is either not square or size is
+        //         " "not a power of 2.");
         if (a.m == 1 && b.m == 1)
             return Matrix2<T>::from({{a.citem(0, 0) * b.citem(0, 0)}});
         Matrix2<T> c(a.n, a.n);
@@ -166,25 +166,31 @@ class Multiplication {
         // Reference:
         // https://en.wikipedia.org/wiki/Matrix_multiplication_algorithm#Non-square_matrices
         int sz_max = std::max({a.m, a.n, b.n});
-        if (sz_max == 2) {
+
+        if (sz_max <= 2) {
             c.product_from(a, b);
         } else if (sz_max == a.m) {
             // Split A horizontally
             int p = a.m / 2;
-            _div_and_conquer(a.csub(0, 0, p, a.n), b, c.sub(0, 0, p, c.n));
-            _div_and_conquer(a.csub(p, 0, a.m - p, a.n), b,
-                             c.sub(p, 0, a.m - p, c.n));
+            auto a1 = a.csub(0, 0, p, a.n), a2 = a.csub(p, 0, a.m - p, a.n);
+            auto c1 = c.sub(0, 0, p, b.n), c2 = c.sub(p, 0, a.m - p, b.n);
+            _div_and_conquer(a1, b, c1);
+            _div_and_conquer(a2, b, c2);
         } else if (sz_max == b.n) {
             int k = b.n / 2;
-            _div_and_conquer(a, b.csub(0, 0, b.m, k), c.sub(0, 0, b.m, k));
-            _div_and_conquer(a, b.csub(0, k, b.m, b.n - k),
-                             c.sub(0, k, b.m, b.n - k));
+            auto b1 = b.csub(0, 0, b.m, k), b2 = b.csub(0, k, b.m, b.n - k);
+            auto c1 = c.sub(0, 0, a.m, k), c2 = c.sub(0, k, a.m, b.n - k);
+            _div_and_conquer(a, b1, c1);
+            _div_and_conquer(a, b2, c2);
         } else {
             int k = a.n / 2;
             Matrix2<T> c1(a.m, b.n), c2(a.m, b.n);
-            _div_and_conquer(a.csub(0, 0, a.m, k), b.csub(0, 0, k, b.n), c1);
-            _div_and_conquer(a.csub(0, k, a.m, a.n - k),
-                             b.csub(k, 0, a.n - k, b.n), c2);
+            auto a1 = a.csub(0, 0, a.m, k), a2 = a.csub(0, k, a.m, a.n - k);
+            auto b1 = b.csub(0, 0, k, b.n), b2 = b.csub(k, 0, a.n - k, b.n);
+
+            _div_and_conquer(a1, b1, c1);
+            _div_and_conquer(a2, b2, c2);
+            
             c.sum_from(c1, c2);
         }
     }

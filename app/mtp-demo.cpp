@@ -5,11 +5,11 @@
 #include "Generator.hpp"
 #include "Matrixv2.hpp"
 
-
 using namespace MatMulImpl;
 using Mtp = MatMulImpl::Multiplication;
 
 int main(int argc, char const *argv[]) {
+    std::cout << "Starting benchmark\n";
     double ratio1_sum = 0;
     double ratio2_sum = 0;
     for (int j = 0; j < 10; j++) {
@@ -26,20 +26,26 @@ int main(int argc, char const *argv[]) {
 
             auto t_end_c2 = std::chrono::high_resolution_clock::now();
 
-            auto &&C3 = Mtp::div_and_conquer_sq2(A, B);
+            auto &&C3 = Mtp::div_and_conquer(A, B);
 
             auto t_end_c3 = std::chrono::high_resolution_clock::now();
             if (!(C2 == C1)) {
+                std::cout << "Strassen failed for " << i << "x" << i << "\n";
+                std::cout << "A:\n" << A;
+                std::cout << "B:\n" << B;
+
+                std::cout << "expected:\n" << C1;
+                std::cout << "got:\n" << C3;
+                return 1;
+            }
+            if (!(C3 == C1)) {
                 std::cout << "Divide and conquer failed for " << i << "x" << i
                           << "\n";
                 std::cout << "A:\n" << A;
                 std::cout << "B:\n" << B;
-                return 1;
-            }
-            if (!(C3 == C1)) {
-                std::cout << "Strassen failed for " << i << "x" << i << "\n";
-                std::cout << "A:\n" << A;
-                std::cout << "B:\n" << B;
+
+                std::cout << "expected:\n" << C1;
+                std::cout << "got:\n" << C3;
                 return 1;
             }
             std::cout << "Test passed for " << i << "x" << i << "\n";
@@ -51,7 +57,9 @@ int main(int argc, char const *argv[]) {
                 t_end_c3 - t_end_c2);
 
             double ratio1 = (double)t1.count() / t2.count();
+            if (t2.count() == 0) ratio1 = 0;
             double ratio2 = (double)t1.count() / t3.count();
+            if (t3.count() == 0) ratio2 = 0;
 
             std::cout << "Naive: " << t1.count() << "us\n";
             std::cout << "Strassen: " << t2.count() << "us\n";

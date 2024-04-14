@@ -45,9 +45,7 @@ template <class T>
 class Matrix2 {
    public:
     Matrix2() = delete;
-    Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {
-        std::fill(mem, mem + m * n, 0);
-    }
+    Matrix2(int m, int n) : mem(new T[m * n]), m(m), n(n), mem_row_sz(n) {}
     Matrix2(const Matrix2<T>& m) =
         delete;  // no copying for now: not implemented
     Matrix2(Matrix2<T>&& m)
@@ -206,7 +204,7 @@ class Matrix2 {
             for (int j = 0; j < n; j++) {
                 item(i, j) = a.citem(i, 0) * b.citem(0, j);
                 for (int k = 1; k < n; k++) {
-                    item(i, j) += b.citem(i, k) * b.citem(k, j);  // Traditional
+                    item(i, j) += a.citem(i, k) * b.citem(k, j);  // Traditional
                 }
             }
         }
