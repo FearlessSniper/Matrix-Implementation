@@ -3,3 +3,4 @@ build
 .cache
 .clangd
 alg-runtimes*.csv
+alg-runtimes*.png
