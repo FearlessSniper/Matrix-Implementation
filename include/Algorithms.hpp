@@ -137,6 +137,41 @@ class Multiplication {
         return c;
     }
 
+    template <class T>
+    static Matrix2<T> Winograd(const Matrix2<T> &a, const Matrix2<T> &b) {
+        // https://cs.stanford.edu/people/boyko/pubs/MatrixMult_SURJ_2004.pdf
+        std::vector<T> D, E;
+        D.reserve(a.m);
+        E.reserve(b.n);
+        for (int i = 0; i < a.m; i++) {
+            T sum = 0;
+            for (int k = 1; k <= a.n / 2; k++)
+                sum += a.citem(i, 2 * k - 2) * a.citem(i, 2 * k - 1);
+            D.push_back(sum);
+        }
+        for (int j = 0; j < b.n; j++) {
+            T sum = 0;
+            for (int k = 1; k <= b.m / 2; k++)
+                sum += b.citem(2 * k - 2, j) * b.citem(2 * k - 1, j);
+            E.push_back(sum);
+        }
+
+        Matrix2<T> c(a.m, b.n);
+        for (int i = 0; i < a.m; i++) {
+            for (int j = 0; j < b.n; j++) {
+                T sum = -D[i] - E[j];
+                for (int k = 1; k <= a.n / 2; k++)
+                    sum += (a.citem(i, 2 * k - 2) + b.citem(2 * k - 1, j)) *
+                           (a.citem(i, 2 * k - 1) + b.citem(2 * k - 2, j));
+
+                if (a.n & 1) sum += a.citem(i, a.n - 1) * b.citem(b.m - 1, j);
+
+                c.item(i, j) = sum;
+            }
+        }
+        return c;
+    }
+
    private:
     // template <class T>
     // static void _div_and_conquer_sq2(const Matrix2<T> &a, const Matrix2<T>
@@ -190,7 +225,7 @@ class Multiplication {
 
             _div_and_conquer(a1, b1, c1);
             _div_and_conquer(a2, b2, c2);
-            
+
             c.sum_from(c1, c2);
         }
     }
