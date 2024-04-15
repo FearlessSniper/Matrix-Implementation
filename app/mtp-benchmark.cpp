@@ -32,30 +32,44 @@ using namespace MatMulImpl;
 using Mtp = MatMulImpl::Multiplication;
 using tick_type = std::chrono::high_resolution_clock::duration::rep;
 
-const char *help_msg =
+std::string help_msg =
     "mtp-bechmark [-h|--help] [-a|--alg algName] [csvOut]\n"
     "-h | --help\n"
     "Prints this help message and exits.\n"
     "-a | --alg\n"
-    "Only runs test with the named algorithm. Available algorithm: naive, "
-    "div_and_conquer, strassen."
+    "Only runs test with the named algorithm. Available algorithm: "
+    "<ALGO_NAMES>\n"  // <ALGO_NAMES> will be replaced with the actual names
     "csvOut\n"
     "Default: alg-runtimes<current datetime>.csv\n"
     "The output path of the csvFile\n";
 
 constexpr long init_batch_size = 0x400000;  // = 4^11
 
-const char *alg_names[] = {"naive", "div_and_conquer_sq2", "strassen",
-                           "div_and_conquer", "Winograd"};
+std::string alg_names[] = {
+    "naive",    "div_and_conquer_sq2",       "strassen",
+    "winograd", "div_and_conquer_optimized",
+};
 const std::vector<
     std::function<void(const Matrix2<double> &, const Matrix2<double> &)>>
-    algos({&Mtp::naive<double>, &Mtp::div_and_conquer_sq2<double>,
-           &Mtp::strassen<double>, &Mtp::div_and_conquer<double>,
-           &Mtp::Winograd<double>});
+    algos({
+        &Mtp::naive<double>,
+        &Mtp::div_and_conquer_sq2<double>,
+        &Mtp::strassen<double>,
+        &Mtp::Winograd<double>,
+        &Mtp::div_and_conquer<double>,
+    });
 
 const int alg_cnt = algos.size();
 
 int main(int argc, char const *argv[]) {
+    std::string algo_name_list("");
+    for (int i = 0; i < alg_cnt; i++) {
+        algo_name_list += alg_names[i];
+        if (i != alg_cnt - 1) {
+            algo_name_list += ", ";
+        }
+    }
+    help_msg.replace(help_msg.find("<ALGO_NAMES>"), 12, algo_name_list);
     std::string csvOut("");
     std::vector<bool> used_algs(alg_cnt, true);
     for (int i = 1; i < argc; i++) {

@@ -8,7 +8,7 @@
 using namespace MatMulImpl;
 using Mtp = MatMulImpl::Multiplication;
 const char *alg_names[] = {"naive", "div_and_conquer_sq2", "strassen",
-                           "div_and_conquer", "Winograd"};
+                           "div_and_conquer_optimized", "winograd"};
 const std::vector<
     std::function<Matrix2<int>(const Matrix2<int> &, const Matrix2<int> &)>>
     algos({&Mtp::naive<int>, &Mtp::div_and_conquer_sq2<int>,
