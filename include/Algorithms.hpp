@@ -112,63 +112,28 @@ class Multiplication {
      */
     template <class T>
     static Matrix2<T> strassen(const Matrix2<T> &a, const Matrix2<T> &b) {
-        if (a.m == 1 && b.m == 1)
-            return Matrix2<T>::from({{a.citem(0, 0) * b.citem(0, 0)}});
-        auto &&a11 = a.csub(0, 0, a.m / 2, a.n / 2),
-             &&a12 = a.csub(0, a.n / 2, a.m / 2, a.n / 2);
-        auto &&a21 = a.csub(a.m / 2, 0, a.m / 2, a.n / 2),
-             &&a22 = a.csub(a.m / 2, a.n / 2, a.m / 2, a.n / 2);
-        auto &&b11 = b.csub(0, 0, b.m / 2, b.n / 2),
-             &&b12 = b.csub(0, b.n / 2, b.m / 2, b.n / 2);
-        auto &&b21 = b.csub(b.m / 2, 0, b.m / 2, b.n / 2),
-             &&b22 = b.csub(b.m / 2, b.n / 2, b.m / 2, b.n / 2);
-        auto &&m1 = strassen(a11 + a22, b11 + b22);
-        auto &&m2 = strassen(a21 + a22, b11);
-        auto &&m3 = strassen(a11, b12 - b22);
-        auto &&m4 = strassen(a22, b21 - b11);
-        auto &&m5 = strassen(a11 + a12, b22);
-        auto &&m6 = strassen(a21 - a11, b11 + b12);
-        auto &&m7 = strassen(a12 - a22, b21 + b22);
         Matrix2<T> c(a.m, b.n);
-        c.sub(0, 0, c.m / 2, c.n / 2).sum_from(m1 + m4 - m5, m7);
-        c.sub(0, c.n / 2, c.m / 2, c.n / 2).sum_from(m3, m5);
-        c.sub(c.m / 2, 0, c.m / 2, c.n / 2).sum_from(m2, m4);
-        c.sub(c.m / 2, c.n / 2, c.m / 2, c.n / 2).sum_from(m1 - m2 + m3, m6);
+        _strassen(a, b, c);
         return c;
     }
 
     template <class T>
-    static Matrix2<T> Winograd(const Matrix2<T> &a, const Matrix2<T> &b) {
+    static Matrix2<T> winograd(const Matrix2<T> &a, const Matrix2<T> &b) {
         // https://cs.stanford.edu/people/boyko/pubs/MatrixMult_SURJ_2004.pdf
-        std::vector<T> D, E;
-        D.reserve(a.m);
-        E.reserve(b.n);
-        for (int i = 0; i < a.m; i++) {
-            T sum = 0;
-            for (int k = 1; k <= a.n / 2; k++)
-                sum += a.citem(i, 2 * k - 2) * a.citem(i, 2 * k - 1);
-            D.push_back(sum);
-        }
-        for (int j = 0; j < b.n; j++) {
-            T sum = 0;
-            for (int k = 1; k <= b.m / 2; k++)
-                sum += b.citem(2 * k - 2, j) * b.citem(2 * k - 1, j);
-            E.push_back(sum);
-        }
-
         Matrix2<T> c(a.m, b.n);
-        for (int i = 0; i < a.m; i++) {
-            for (int j = 0; j < b.n; j++) {
-                T sum = -D[i] - E[j];
-                for (int k = 1; k <= a.n / 2; k++)
-                    sum += (a.citem(i, 2 * k - 2) + b.citem(2 * k - 1, j)) *
-                           (a.citem(i, 2 * k - 1) + b.citem(2 * k - 2, j));
+        _winograd(a, b, c);
+        return c;
+    }
 
-                if (a.n & 1) sum += a.citem(i, a.n - 1) * b.citem(b.m - 1, j);
-
-                c.item(i, j) = sum;
-            }
-        }
+    template <class T>
+    static Matrix2<T> strassen_winograd_hybrid(const Matrix2<T> &a,
+                                               const Matrix2<T> &b) {
+        Matrix2<T> c(a.m, b.n);
+        int threshold = a.m, temp = a.m >> 2;
+        while (temp)
+            threshold >>= 1, temp >>= 2;  // will equally divide the work
+                                          // between winograd and strassen
+        _strassen_winograd_hybrid(a, b, c, threshold);
         return c;
     }
 
@@ -227,6 +192,127 @@ class Multiplication {
             _div_and_conquer(a2, b2, c2);
 
             c.sum_from(c1, c2);
+        }
+    }
+
+    template <class T>
+    static void _strassen(const Matrix2<T> &a, const Matrix2<T> &b,
+                          Matrix2<T> &c) {
+        if (a.m == 1 && b.m == 1) {
+            // return Matrix2<T>::from({{a.citem(0, 0) * b.citem(0, 0)}});
+            c.item(0, 0) = a.citem(0, 0) * b.citem(0, 0);
+            return;
+        }
+        auto &&a11 = a.csub(0, 0, a.m / 2, a.n / 2),
+             &&a12 = a.csub(0, a.n / 2, a.m / 2, a.n / 2);
+        auto &&a21 = a.csub(a.m / 2, 0, a.m / 2, a.n / 2),
+             &&a22 = a.csub(a.m / 2, a.n / 2, a.m / 2, a.n / 2);
+        auto &&b11 = b.csub(0, 0, b.m / 2, b.n / 2),
+             &&b12 = b.csub(0, b.n / 2, b.m / 2, b.n / 2);
+        auto &&b21 = b.csub(b.m / 2, 0, b.m / 2, b.n / 2),
+             &&b22 = b.csub(b.m / 2, b.n / 2, b.m / 2, b.n / 2);
+        Matrix2<T> m1(a.m / 2, b.n / 2), m2(a.m / 2, b.n / 2),
+            m3(a.m / 2, b.n / 2), m4(a.m / 2, b.n / 2);
+        //     , m5(a.m / 2, b.n / 2),
+        //     m6(a.m / 2, b.n / 2), m7(a.m / 2, b.n / 2);
+        // _strassen(a11 + a22, b11 + b22, m1);
+        // _strassen(a21 + a22, b11, m2);
+        // _strassen(a11, b12 - b22, m3);
+        // _strassen(a22, b21 - b11, m4);
+        // _strassen(a11 + a12, b22, m5);
+        // _strassen(a21 - a11, b11 + b12, m6);
+        // _strassen(a12 - a22, b21 + b22, m7);
+        // c.sub(0, 0, c.m / 2, c.n / 2).sum_from(m1 + m4 - m5, m7);
+        // c.sub(0, c.n / 2, c.m / 2, c.n / 2).sum_from(m3, m5);
+        // c.sub(c.m / 2, 0, c.m / 2, c.n / 2).sum_from(m2, m4);
+        // c.sub(c.m / 2, c.n / 2, c.m / 2, c.n / 2).sum_from(m1 - m2 + m3, m6);
+
+        // each matrix is only ever used twice, except for m7 and m6, which is
+        // used only once we can reuse the matrices to save memory and get away
+        // with creating only 4
+        _strassen(a11 + a22, b11 + b22, m1);
+        _strassen(a22, b21 - b11, m2);
+        _strassen(a11 + a12, b22, m3);
+        _strassen(a12 - a22, b21 + b22, m4);
+        c.sub(0, 0, c.m / 2, c.n / 2).sum_from(m1 + m2 - m3, m4);
+
+        _strassen(a11, b12 - b22, m4);
+        c.sub(0, c.n / 2, c.m / 2, c.n / 2).sum_from(m3, m4);
+
+        _strassen(a21 + a22, b11, m3);
+        c.sub(c.m / 2, 0, c.m / 2, c.n / 2).sum_from(m2, m3);
+
+        _strassen(a21 - a11, b11 + b12, m2);
+        c.sub(c.m / 2, c.n / 2, c.m / 2, c.n / 2).sum_from(m1 - m3 + m4, m2);
+    }
+
+    template <class T>
+    static void _winograd(const Matrix2<T> &a, const Matrix2<T> &b,
+                          Matrix2<T> &c) {
+        std::vector<T> D, E;
+        D.reserve(a.m);
+        E.reserve(b.n);
+        for (int i = 0; i < a.m; i++) {
+            T sum = 0;
+            for (int k = 1; k <= a.n / 2; k++)
+                sum += a.citem(i, 2 * k - 2) * a.citem(i, 2 * k - 1);
+            D.push_back(sum);
+        }
+        for (int j = 0; j < b.n; j++) {
+            T sum = 0;
+            for (int k = 1; k <= b.m / 2; k++)
+                sum += b.citem(2 * k - 2, j) * b.citem(2 * k - 1, j);
+            E.push_back(sum);
+        }
+
+        for (int i = 0; i < a.m; i++) {
+            for (int j = 0; j < b.n; j++) {
+                T sum = -D[i] - E[j];
+                for (int k = 1; k <= a.n / 2; k++)
+                    sum += (a.citem(i, 2 * k - 2) + b.citem(2 * k - 1, j)) *
+                           (a.citem(i, 2 * k - 1) + b.citem(2 * k - 2, j));
+
+                if (a.n & 1) sum += a.citem(i, a.n - 1) * b.citem(b.m - 1, j);
+
+                c.item(i, j) = sum;
+            }
+        }
+    }
+
+    template <class T>
+    static void _strassen_winograd_hybrid(const Matrix2<T> &a,
+                                          const Matrix2<T> &b, Matrix2<T> &c,
+                                          const int &threshold) {
+        if (a.m <= threshold) {
+            _winograd(a, b, c);
+        } else {
+            // Strassen
+            auto &&a11 = a.csub(0, 0, a.m / 2, a.n / 2),
+                 &&a12 = a.csub(0, a.n / 2, a.m / 2, a.n / 2);
+            auto &&a21 = a.csub(a.m / 2, 0, a.m / 2, a.n / 2),
+                 &&a22 = a.csub(a.m / 2, a.n / 2, a.m / 2, a.n / 2);
+            auto &&b11 = b.csub(0, 0, b.m / 2, b.n / 2),
+                 &&b12 = b.csub(0, b.n / 2, b.m / 2, b.n / 2);
+            auto &&b21 = b.csub(b.m / 2, 0, b.m / 2, b.n / 2),
+                 &&b22 = b.csub(b.m / 2, b.n / 2, b.m / 2, b.n / 2);
+            Matrix2<T> m1(a.m / 2, b.n / 2), m2(a.m / 2, b.n / 2),
+                m3(a.m / 2, b.n / 2), m4(a.m / 2, b.n / 2);
+
+            _strassen_winograd_hybrid(a11 + a22, b11 + b22, m1, threshold);
+            _strassen_winograd_hybrid(a22, b21 - b11, m2, threshold);
+            _strassen_winograd_hybrid(a11 + a12, b22, m3, threshold);
+            _strassen_winograd_hybrid(a12 - a22, b21 + b22, m4, threshold);
+            c.sub(0, 0, c.m / 2, c.n / 2).sum_from(m1 + m2 - m3, m4);
+
+            _strassen_winograd_hybrid(a11, b12 - b22, m4, threshold);
+            c.sub(0, c.n / 2, c.m / 2, c.n / 2).sum_from(m3, m4);
+
+            _strassen_winograd_hybrid(a21 + a22, b11, m3, threshold);
+            c.sub(c.m / 2, 0, c.m / 2, c.n / 2).sum_from(m2, m3);
+
+            _strassen_winograd_hybrid(a21 - a11, b11 + b12, m2, threshold);
+            c.sub(c.m / 2, c.n / 2, c.m / 2, c.n / 2)
+                .sum_from(m1 - m3 + m4, m2);
         }
     }
 };

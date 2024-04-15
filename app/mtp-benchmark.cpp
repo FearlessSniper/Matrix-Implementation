@@ -47,17 +47,13 @@ constexpr long init_batch_size = 0x400000;  // = 4^11
 
 std::string alg_names[] = {
     "naive",    "div_and_conquer_sq2",       "strassen",
-    "winograd", "div_and_conquer_optimized",
-};
+    "winograd", "div_and_conquer_optimized", "strassen_winograd_hybrid"};
 const std::vector<
     std::function<void(const Matrix2<double> &, const Matrix2<double> &)>>
-    algos({
-        &Mtp::naive<double>,
-        &Mtp::div_and_conquer_sq2<double>,
-        &Mtp::strassen<double>,
-        &Mtp::Winograd<double>,
-        &Mtp::div_and_conquer<double>,
-    });
+    algos({&Mtp::naive<double>, &Mtp::div_and_conquer_sq2<double>,
+           &Mtp::strassen<double>, &Mtp::winograd<double>,
+           &Mtp::div_and_conquer<double>,
+           &Mtp::strassen_winograd_hybrid<double>});
 
 const int alg_cnt = algos.size();
 
@@ -96,7 +92,10 @@ int main(int argc, char const *argv[]) {
             std::cout << "Unrecognized argument: " << help_msg << std::endl;
             return -1;
         } else {
-            csvOut.assign(argv[i]);
+            char dt_str[13];
+            auto now_epoch = time(nullptr);
+            strftime(dt_str, 13, "%Y%m%d%H%M", localtime(&now_epoch));
+            (((csvOut += "alg-runtimes") += argv[i]) += dt_str) += ".csv";
         }
     }
     if (csvOut == "") {

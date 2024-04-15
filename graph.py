@@ -1,6 +1,7 @@
 import csv
 import matplotlib.pyplot as plt
 import sys
+import uuid
 
 USAGE = """
 Usage: python graph.py <input_file> <output_file?>
@@ -75,7 +76,7 @@ def main():
     if len(sys.argv) > 2:
         outputfile = sys.argv[2]
     else:
-        outputfile = inputfile.split(".")[0] + ".png"
+        outputfile = inputfile.split(".")[0] + "_" + str(uuid.uuid4()) + ".png"
 
     data = format_data(read_csv(inputfile))
 

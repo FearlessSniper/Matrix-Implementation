@@ -7,13 +7,14 @@
 
 using namespace MatMulImpl;
 using Mtp = MatMulImpl::Multiplication;
-const char *alg_names[] = {"naive", "div_and_conquer_sq2", "strassen",
-                           "div_and_conquer_optimized", "winograd"};
+const char *alg_names[] = {"naive",    "div_and_conquer_sq2",
+                           "strassen", "div_and_conquer_optimized",
+                           "winograd", "strassen_winograd_hybrid"};
 const std::vector<
     std::function<Matrix2<int>(const Matrix2<int> &, const Matrix2<int> &)>>
     algos({&Mtp::naive<int>, &Mtp::div_and_conquer_sq2<int>,
-           &Mtp::strassen<int>, &Mtp::div_and_conquer<int>,
-           &Mtp::Winograd<int>});
+           &Mtp::strassen<int>, &Mtp::div_and_conquer<int>, &Mtp::winograd<int>,
+           &Mtp::strassen_winograd_hybrid<int>});
 
 int main(int argc, char const *argv[]) {
     std::cout << "Starting benchmark\n";
