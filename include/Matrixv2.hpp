@@ -188,6 +188,19 @@ class Matrix2 {
             }
         }
     }
+    void sub_from(const Matrix2<T>& a, const Matrix2<T>& b) {
+        if (a.dim() != b.dim())
+            throw BadDimensionException(
+                "Size of matrix A and B does not match.");
+        if (this->dim() != a.dim())
+            throw BadDimensionException(
+                "Target matrix is not the size of A and B.");
+        for (int i = 0; i < a.m; i++) {
+            for (int j = 0; j < a.n; j++) {
+                item(i, j) = a.citem(i, j) - b.citem(i, j);
+            }
+        }
+    }
     /**
      * @brief Computes the product of matrix a and b with the standard method
      * and stores it in itself

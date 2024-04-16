@@ -1,5 +1,6 @@
 import csv
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import sys
 import uuid
 
@@ -22,11 +23,11 @@ def read_csv(filename: str) -> list[list[str]]:
     return data
 
 
-def format_data(data: list[list[str]]) -> dict[str, tuple[list[str], list[list[int]]]]:
-    d: dict[str, tuple[list[str], list[list[int]]]] = {}
+def format_data(data: list[list[str]]) -> dict[str, tuple[list[int], list[list[int]]]]:
+    d: dict[str, tuple[list[int], list[list[int]]]] = {}
     for i, row in enumerate(data):
         name = row[0]
-        matsize = row[2] + "x" + row[4]
+        matsize = int(row[2])
         tests: list[int] = []
         for j, v in enumerate(row[7:]):
             try:
@@ -44,10 +45,10 @@ def format_data(data: list[list[str]]) -> dict[str, tuple[list[str], list[list[i
 
 
 def average_data(
-    data: dict[str, tuple[list[str], list[list[int]]]]
-) -> dict[str, tuple[list[str], list[float]]]:
+    data: dict[str, tuple[list[int], list[list[int]]]]
+) -> dict[str, tuple[list[int], list[float]]]:
 
-    d: dict[str, tuple[list[str], list[float]]] = {}
+    d: dict[str, tuple[list[int], list[float]]] = {}
     for name, (matsizes, tests) in data.items():
         d[name] = (matsizes, [])
         for test in tests:
@@ -55,15 +56,40 @@ def average_data(
     return d
 
 
-def plot_data(data: dict[str, tuple[list[str], list[int | float]]], outputfile: str):
-    plt.figure(figsize=(20, 12))  # type: ignore
+def plot_data(data: dict[str, tuple[list[int], list[int | float]]], outputfile: str):
+    # plt.figure(figsize=(20, 12))  # type: ignore
+    fig, ax = plt.subplots(figsize=(20, 12))  # type: ignore
+    fig.tight_layout(pad=3)  # type: ignore
+    fig.subplots_adjust(right=0.93)  # type: ignore
+    ax.margins(x=0.009)  # type: ignore
+    start = 7
     for name, (matsizes, times) in data.items():
-        plt.plot(matsizes, times, label=name)  # type: ignore
+        offset = [12, 0]
+        if name == "div_and_conquer_optimized":
+            offset[1] = 5 
+        elif name == "naive":
+            offset[1] = -5
+        elif name == "div_and_conquer_sq2":
+            name = "div_and_conquer_naive"
+        line = ax.plot(matsizes[start:], times[start:], "o-", label=name)  # type: ignore
+        ax.annotate( # type: ignore
+            f"{times[-1]:.2f}ms",
+            (matsizes[-1], times[-1]), # type: ignore
+            textcoords="offset points",
+            xytext=offset, # type: ignore
+            ha="left",
+            color=line[0].get_color(),  # type: ignore
+            fontsize=12,
+        )
+        ax.set_xticks(matsizes[start:])  # type: ignore
         print(name, matsizes, times)
-    plt.legend()  # type: ignore
-    plt.xlabel("Matrix Size")  # type: ignore
-    plt.ylabel("Average Time (ms)")  # type: ignore
-    plt.title("Matrix Multiplication Performance")  # type: ignore
+    ax.legend(fontsize=24)  # type: ignore
+    ax.yaxis.offsetText.set_fontsize(10)
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{x:.0f}x{x:.0f}"))  # type: ignore
+    ax.tick_params(axis='both', which='major', labelsize=10)
+    ax.set_xlabel("Matrix Size", fontsize=16)  # type: ignore
+    ax.set_ylabel("Average Time (ms)", fontsize=16)  # type: ignore
+    ax.set_title("Matrix Multiplication Performance", fontsize=32)  # type: ignore
     plt.savefig(outputfile)  # type: ignore
     plt.show()  # type: ignore
 
